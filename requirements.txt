@@ -7,4 +7,4 @@ plotly
 xgboot
 joblib
 seaborn
-
+sqlalchemy

@@ -6,6 +6,8 @@ from airlfow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta
 import os,requests
+import pandas as pd
+from Data_Extract import clean_data_extract
 
 
 dag_owner = 'ProjectIE'
@@ -16,7 +18,7 @@ default_args = {'owner': dag_owner,
         'retry_delay': timedelta(minutes=5)
         }
 
-with DAG(dag_id='Download from Kaggle',
+with DAG(dag_id='Extract data into Postgres',
         default_args=default_args,
         description='Down load and extract into Postgres DB',
         start_date=datetime(2024,11,7),
@@ -27,30 +29,62 @@ with DAG(dag_id='Download from Kaggle',
 
     bash_task_down = BashOperator(
         task_id="Download source data from kaggle",
-        bash_command='curl -L -o ~/Downloads/archive.zip\https://www.kaggle.com/api/v1/datasets/download/shubhambathwal/flight-price-prediction',
-        # env: Optional[Dict[str, str]] = None,
-        # output_encoding: str = 'utf-8',
-        # skip_exit_code: int = 99,
+        bash_command='curl -L -o archive.zip https://www.kaggle.com/api/v1/datasets/download/shubhambathwal/flight-price-prediction',
+        cwd = '/tmp',
     )
-    python_task_extract_into_DB = PythonOperator(
-        task_id='Extract_into_DB',
-        python_callable=lambda: print('Hi from python operator'),
-        # op_kwargs: Optional[Dict] = None,
-        # op_args: Optional[List] = None,
-        # templates_dict: Optional[Dict] = None
-        # templates_exts: Optional[List] = None
+    
+    bash_task_tar = BashOperator(
+        task_id="bash_task_tar",
+        bash_command='unzip archive.zip',
+        cwd = '/tmp',
     )
 
-    PostgresHook_hook = PostgresHook(
-
+    PostgresOperator_task_economy = PostgresOperator(
+        task_id='PostgresOperator_task_economy',
+        postgres_conn_id='postgres_connect_Project',
+        sql = 'sql/economy_flight.sql',
     )
-    PostgresOperator_task = PostgresOperator(
-        task_id='PostgresOperator_task',
-        postgres_conn_id='postgres_default',
-        database=None,
-        runtime_parameters=None,
+    PostgresOperator_task_business = PostgresOperator(
+        task_id='PostgresOperator_task_business',
+        postgres_conn_id='postgres_connect_Project',
+        sql = 'sql/business_flight.sql',
+    )
+    PostgresOperator_task_cleandata = PostgresOperator(
+        task_id='PostgresOperator_task_cleandata',
+        postgres_conn_id='postgres_connect_Project',
+        sql = 'sql/cleandata_flight.sql',
     )
 
+    python_clean_data_extract = PythonOperator(
+        task_id='Clean Data Extract',
+        python_callable=clean_data_extract,
+    )
+
+    @task
+    def insert_data_economy():
+        data_path_economy = '/tmp/economy.csv'
+        postgres_hook = PostgresHook(postgres_conn_id='postgres_connect_Project')
+        conn = postgres_hook.get_conn()
+        cur = conn.cursor()
+        with open(data_path_economy, "r") as file:
+            cur.copy_expert(
+                "COPY economy_flight FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE '\"'",
+                file,
+            )
+        conn.commit()
+
+    def insert_data_business():
+        data_path_business = '/tmp/business.csv'
+        postgres_hook = PostgresHook(postgres_conn_id='postgres_connect_Project')
+        conn = postgres_hook.get_conn()
+        cur = conn.cursor()
+        with open(data_path_business, "r") as file:
+            cur.copy_expert(
+                "COPY business_flight FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE '\"'",
+                file,
+            )
+        conn.commit()
+    
 
 
-    bash_task_down
+    bash_task_down >> bash_task_tar >> [PostgresOperator_task_economy, PostgresOperator_task_business, PostgresOperator_task_cleandata] >> python_clean_data_extract >> insert_data_economy >> insert_data_business
