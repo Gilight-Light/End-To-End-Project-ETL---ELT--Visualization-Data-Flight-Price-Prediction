@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.providers.postgres.operators.postgres import PostgresOperator
-from airlfow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta
 import os,requests
@@ -18,17 +18,17 @@ default_args = {'owner': dag_owner,
         'retry_delay': timedelta(minutes=5)
         }
 
-with DAG(dag_id='Extract data into Postgres',
+with DAG(dag_id='Extract_data_into_Postgres',
         default_args=default_args,
         description='Down load and extract into Postgres DB',
         start_date=datetime(2024,11,7),
-        schedule_interval='',
+        schedule_interval=None,
         catchup=False,
         tags=['']
 )as dag:
 
     bash_task_down = BashOperator(
-        task_id="Download source data from kaggle",
+        task_id="Download_source_data_from_kaggle",
         bash_command='curl -L -o archive.zip https://www.kaggle.com/api/v1/datasets/download/shubhambathwal/flight-price-prediction',
         cwd = '/tmp',
     )
@@ -56,7 +56,7 @@ with DAG(dag_id='Extract data into Postgres',
     )
 
     python_clean_data_extract = PythonOperator(
-        task_id='Clean Data Extract',
+        task_id='Clean-Data-Extract',
         python_callable=clean_data_extract,
     )
 
@@ -68,11 +68,12 @@ with DAG(dag_id='Extract data into Postgres',
         cur = conn.cursor()
         with open(data_path_economy, "r") as file:
             cur.copy_expert(
-                "COPY economy_flight FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE '\"'",
+                "COPY economic_flight FROM STDIN WITH CSV HEADER DELIMITER AS ',' QUOTE '\"'",
                 file,
             )
         conn.commit()
 
+    @task
     def insert_data_business():
         data_path_business = '/tmp/business.csv'
         postgres_hook = PostgresHook(postgres_conn_id='postgres_connect_Project')
@@ -87,4 +88,4 @@ with DAG(dag_id='Extract data into Postgres',
     
 
 
-    bash_task_down >> bash_task_tar >> [PostgresOperator_task_economy, PostgresOperator_task_business, PostgresOperator_task_cleandata] >> python_clean_data_extract >> insert_data_economy >> insert_data_business
+    bash_task_down >> bash_task_tar >> [PostgresOperator_task_economy, PostgresOperator_task_business, PostgresOperator_task_cleandata] >> python_clean_data_extract >> insert_data_economy() >> insert_data_business()

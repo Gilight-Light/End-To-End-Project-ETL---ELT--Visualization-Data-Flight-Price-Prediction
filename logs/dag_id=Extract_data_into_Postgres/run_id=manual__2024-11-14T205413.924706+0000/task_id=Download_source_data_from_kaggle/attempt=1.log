@@ -1,0 +1,30 @@
+[2024-11-14T20:54:15.789+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2024-11-14T20:54:15.816+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: Extract_data_into_Postgres.Download_source_data_from_kaggle manual__2024-11-14T20:54:13.924706+00:00 [queued]>
+[2024-11-14T20:54:15.825+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: Extract_data_into_Postgres.Download_source_data_from_kaggle manual__2024-11-14T20:54:13.924706+00:00 [queued]>
+[2024-11-14T20:54:15.826+0000] {taskinstance.py:2865} INFO - Starting attempt 1 of 3
+[2024-11-14T20:54:15.840+0000] {taskinstance.py:2888} INFO - Executing <Task(BashOperator): Download_source_data_from_kaggle> on 2024-11-14 20:54:13.924706+00:00
+[2024-11-14T20:54:15.851+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70: DeprecationWarning: This process (pid=179) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2024-11-14T20:54:15.857+0000] {standard_task_runner.py:72} INFO - Started process 181 to run task
+[2024-11-14T20:54:15.853+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'Extract_data_into_Postgres', 'Download_source_data_from_kaggle', 'manual__2024-11-14T20:54:13.924706+00:00', '--job-id', '8', '--raw', '--subdir', 'DAGS_FOLDER/dag_download.py', '--cfg-path', '/tmp/tmp_g87vkv3']
+[2024-11-14T20:54:15.861+0000] {standard_task_runner.py:105} INFO - Job 8: Subtask Download_source_data_from_kaggle
+[2024-11-14T20:54:15.955+0000] {task_command.py:467} INFO - Running <TaskInstance: Extract_data_into_Postgres.Download_source_data_from_kaggle manual__2024-11-14T20:54:13.924706+00:00 [running]> on host 5a0a8dfc4e16
+[2024-11-14T20:54:16.081+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='ProjectIE' AIRFLOW_CTX_DAG_ID='Extract_data_into_Postgres' AIRFLOW_CTX_TASK_ID='Download_source_data_from_kaggle' AIRFLOW_CTX_EXECUTION_DATE='2024-11-14T20:54:13.924706+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2024-11-14T20:54:13.924706+00:00'
+[2024-11-14T20:54:16.084+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2024-11-14T20:54:16.093+0000] {subprocess.py:63} INFO - Tmp dir root location: /tmp
+[2024-11-14T20:54:16.097+0000] {subprocess.py:75} INFO - Running command: ['/usr/bin/bash', '-c', 'curl -L -o archive.zip https://www.kaggle.com/api/v1/datasets/download/shubhambathwal/flight-price-prediction']
+[2024-11-14T20:54:16.123+0000] {subprocess.py:86} INFO - Output:
+[2024-11-14T20:54:16.145+0000] {subprocess.py:93} INFO -   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+[2024-11-14T20:54:16.148+0000] {subprocess.py:93} INFO -                                  Dload  Upload   Total   Spent    Left  Speed
+[2024-11-14T20:54:16.704+0000] {subprocess.py:93} INFO -   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+[2024-11-14T20:54:18.569+0000] {subprocess.py:93} INFO -   0 4258k    0  6941    0     0   6620      0  0:10:58  0:00:01  0:10:57  6620 17 4258k   17  738k    0     0   376k      0  0:00:11  0:00:01  0:00:10  800k100 4258k  100 4258k    0     0  1756k      0  0:00:02  0:00:02 --:--:-- 3089k
+[2024-11-14T20:54:18.574+0000] {subprocess.py:97} INFO - Command exited with return code 0
+[2024-11-14T20:54:18.606+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2024-11-14T20:54:18.607+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=Extract_data_into_Postgres, task_id=Download_source_data_from_kaggle, run_id=manual__2024-11-14T20:54:13.924706+00:00, execution_date=20241114T205413, start_date=20241114T205415, end_date=20241114T205418
+[2024-11-14T20:54:18.672+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2024-11-14T20:54:18.688+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/models/baseoperator.py:1378: AirflowProviderDeprecationWarning: Call to deprecated class PostgresOperator. (Please use `***.providers.common.sql.operators.sql.SQLExecuteQueryOperator`.Also, you can provide `hook_params={'schema': <database>}`.)
+  result = cls.__new__(cls)
+
+[2024-11-14T20:54:18.719+0000] {taskinstance.py:3900} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2024-11-14T20:54:18.728+0000] {local_task_job_runner.py:245} INFO - ::endgroup::
